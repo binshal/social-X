@@ -1,0 +1,95 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="text-center">Profile</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="Profile Picture"
+                                     class="img-fluid rounded-circle mb-3" style="max-width: 200px;">
+                            {% else %}
+                                <img src="https://via.placeholder.com/200" alt="Default Profile Picture"
+                                     class="img-fluid rounded-circle mb-3">
+                            {% endif %}
+                            <div class="mb-3">
+                                <label for="{{ form.profile_picture.id_for_label }}" class="form-label">
+                                    Change Profile Picture
+                                </label>
+                                {{ form.profile_picture }}
+                                {% if form.profile_picture.errors %}
+                                    {% for error in form.profile_picture.errors %}
+                                        <div class="text-danger small">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            {% for field in form %}
+                                {% if field.name != 'profile_picture' %}
+                                    <div class="mb-3">
+                                        <label for="{{ field.id_for_label }}" class="form-label">
+                                            {{ field.label }}
+                                        </label>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            {% for error in field.errors %}
+                                                <div class="text-danger small">{{ error }}</div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Password Change Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3 class="text-center">Security</h3>
+            </div>
+            <div class="card-body text-center">
+                <a href="{% url 'password_reset' %}" class="btn btn-warning">
+                    Change Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Image Before Upload -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const profilePicInput = document.querySelector('input[type="file"]');
+    const profilePicDisplay = document.querySelector('.rounded-circle');
+
+    profilePicInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                profilePicDisplay.setAttribute('src', e.target.result);
+            }
+
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+});
+</script>
+{% endblock %}

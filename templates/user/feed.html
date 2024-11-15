@@ -1,0 +1,96 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Feed{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        {% for post in posts %}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+
+                        <div class="d-flex flex-row justify-content-between align-items-center p-2 border-bottom">
+                            <div class="d-flex flex-row align-items-center feed-text px-2"><img class="rounded-circle" src="{{ post.author.profile_picture.url }}" width="45">
+                                <div class="d-flex flex-column flex-wrap ml-2"><span class="font-weight-bold">ㅤ{{ post.author.username }} </span><span class="text-black-50 time"> ㅤ{{ post.created_at|timesince }} ago</span></div>
+                            </div>
+                            <!-- <div class="feed-icon px-2"><i class="fa fa-ellipsis-v text-black-50"></i></div> -->
+                        </div>
+
+                        <!-- <strong>{{ post.author.username }}</strong>
+                        <small class="text-muted">{{ post.created_at|timesince }} ago</small> -->
+                    </div>
+                    {% if user == post.author %}
+                        <div>
+                            <a href="{% url 'edit_post' post.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a href="{% url 'delete_post' post.pk %}" class="btn btn-sm btn-outline-danger" 
+                               onclick="return confirm('Are you sure you want to delete this post?')">Delete</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+
+                <div class="text-center">
+                    {% if post.post_type == 'image' and post.image %}
+                        <img src="{{ post.image.url }}" class="card-img-top rounded mx-auto d-block" alt="{{ post.title }}">
+                    {% endif %}
+                  </div>
+                
+                
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    {% if post.post_type == 'image' %}
+                        <p class="card-text">{{ post.image_caption }}</p>
+                    {% else %}
+                        <p class="card-text">{{ post.content|linebreaksbr }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="card-footer">
+                    <button class="btn btn-sm {% if post in user.likes.all %}btn-primary{% else %}btn-outline-primary{% endif %} like-button"
+                            data-post-id="{{ post.pk }}">
+                        <i class="fas fa-heart"></i> 
+                        <span class="likes-count">{{ post.likes.count }}</span>
+                    </button>
+                    <a href="{% url 'post_detail' post.pk %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-comment"></i> 
+                        {{ post.comments.count }}
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center">
+                <h3>No posts yet!</h3>
+                <p>Be the first to share something!</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.like-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const postId = this.dataset.postId;
+        fetch(`/post/${postId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const likesCount = this.querySelector('.likes-count');
+            likesCount.textContent = data.likes_count;
+            if (data.liked) {
+                this.classList.replace('btn-outline-primary', 'btn-primary');
+            } else {
+                this.classList.replace('btn-primary', 'btn-outline-primary');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

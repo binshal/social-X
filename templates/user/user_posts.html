@@ -1,0 +1,22 @@
+{% extends 'user/base.html' %}
+
+{% block title %}Feed{% endblock %}
+
+{% block content %}
+
+        {% if posts %}
+            <ul>
+                {% for post in posts %}
+                    <li class="post">
+                        <h2>{{ post.title }}</h2>
+                        <p>{{ post.content|truncatewords:50 }}</p> <!-- Displaying the first 50 words of the content -->
+                        <small>Published on: {{ post.created_at|timesince }}</small>
+                        <a href="{% url 'post_detail' post.id %}">Read more</a> <!-- Adjust to your post detail URL name -->
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No posts found for {{ username }}.</p>
+        {% endif %}
+
+{% endblock %}

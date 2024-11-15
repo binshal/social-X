@@ -1,0 +1,80 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Admin Dashboard</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Users</h5>
+                <h2 class="card-text">{{ total_users }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Total Posts</h5>
+                <h2 class="card-text">{{ total_posts }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Blocked Users</h5>
+                <h2 class="card-text">{{ blocked_users }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h5 class="card-title">Blocked Posts</h5>
+                <h2 class="card-text">{{ blocked_posts }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">Recent Moderation Actions</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Moderator</th>
+                        <th>Action</th>
+                        <th>Target</th>
+                        <th>Reason</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in recent_actions %}
+                        <tr>
+                            <td>{{ log.moderator.username }}</td>
+                            <td>{{ log.get_action_display }}</td>
+                            <td>
+                                {% if log.target_user %}
+                                    User: {{ log.target_user.username }}
+                                {% elif log.target_post %}
+                                    Post: {{ log.target_post.title }}
+                                {% endif %}
+                            </td>
+                            <td>{{ log.reason }}</td>
+                            <td>{{ log.timestamp|timesince }} ago</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
